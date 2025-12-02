@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       body {
         margin: 0;
@@ -21,34 +22,88 @@
         width: 100vw;
         height: 100vh;
       }
-      /* Custom Scrollbar for philosophical text */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-      }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react/": "https://esm.sh/react@18.2.0/",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "three": "https://esm.sh/three@0.161.0",
-    "@react-three/drei": "https://esm.sh/@react-three/drei@9.102.0?external=react,react-dom,three,@react-three/fiber",
-    "@react-spring/three": "https://esm.sh/@react-spring/three@9.7.3?external=react,react-dom,three,@react-three/fiber",
-    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.16?external=react,react-dom,three"
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@react-three/fiber": "https://aistudiocdn.com/@react-three/fiber@^9.4.2",
+    "three": "https://aistudiocdn.com/three@^0.181.2",
+    "@react-three/drei": "https://aistudiocdn.com/@react-three/drei@^10.7.7"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
+    <script type="module">
+      // External Dependencies
+      const dependencies = {
+        "react": "https://esm.sh/react@18.2.0",
+        "react/": "https://esm.sh/react@18.2.0/",
+        "react-dom": "https://esm.sh/react-dom@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "three": "https://esm.sh/three@0.161.0",
+        "@react-three/drei": "https://esm.sh/@react-three/drei@9.102.0?external=react,react-dom,three,@react-three/fiber",
+        "@react-spring/three": "https://esm.sh/@react-spring/three@9.7.3?external=react,react-dom,three,@react-three/fiber",
+        "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.16?external=react,react-dom,three"
+      };
+
+      // Local Files to Load
+      const localFiles = [
+        './types.ts',
+        './constants.ts',
+        './services/audioService.ts',
+        './services/geminiService.ts',
+        './components/Character.tsx',
+        './components/GameScene.tsx',
+        './App.tsx',
+        './index.tsx'
+      ];
+
+      async function boot() {
+        try {
+          const importMap = { imports: { ...dependencies } };
+
+          // Fetch and compile all local files
+          await Promise.all(localFiles.map(async (file) => {
+            const res = await fetch(file);
+            if (!res.ok) throw new Error(`Failed to fetch ${file}`);
+            const tsCode = await res.text();
+            
+            // Compile TS/TSX to JS
+            const { code } = Babel.transform(tsCode, {
+              presets: ['react', 'typescript'],
+              filename: file
+            });
+
+            // Create a Blob URL for the compiled module
+            const blob = new Blob([code], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            importMap.imports[file] = url;
+          }));
+
+          // Inject the Import Map
+          const mapEl = document.createElement('script');
+          mapEl.type = 'importmap';
+          mapEl.textContent = JSON.stringify(importMap);
+          document.head.appendChild(mapEl);
+
+          // Start the application
+          import('./index.tsx');
+
+        } catch (e) {
+          console.error(e);
+          document.body.innerHTML = `<div style="color:white;padding:20px;">Failed to load application: ${e.message}</div>`;
+        }
+      }
+
+      boot();
+    </script>
   </body>
 </html>

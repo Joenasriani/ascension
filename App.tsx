@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LEVELS } from './constants';
-import GameScene from './components/GameScene';
-import { generateReflection } from './services/geminiService';
-import { initAudio } from './services/audioService';
+import { LEVELS } from './constants.ts';
+import GameScene from './components/GameScene.tsx';
+import { generateReflection } from './services/geminiService.ts';
+import { initAudio } from './services/audioService.ts';
 
 const App: React.FC = () => {
   const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
@@ -18,15 +18,24 @@ const App: React.FC = () => {
 
   // Initialize Music
   useEffect(() => {
-    // Corrected path to 'music/thelittlehero.mp3'
-    const audio = new Audio('music/thelittlehero.mp3');
-    audio.loop = true;
-    audio.volume = 0.3; 
-    musicRef.current = audio;
+    // Attempt to load music, handle errors gracefully if file missing
+    try {
+      const audio = new Audio('music/thelittlehero.mp3');
+      audio.loop = true;
+      audio.volume = 0.3; 
+      audio.addEventListener('error', (e) => {
+        console.warn("Music file not found or failed to load.", e);
+      });
+      musicRef.current = audio;
+    } catch (e) {
+      console.warn("Audio initialization failed", e);
+    }
 
     return () => {
-      audio.pause();
-      musicRef.current = null;
+      if (musicRef.current) {
+        musicRef.current.pause();
+        musicRef.current = null;
+      }
     };
   }, []);
 
