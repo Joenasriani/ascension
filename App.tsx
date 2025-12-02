@@ -177,7 +177,7 @@ const App: React.FC = () => {
 
       {/* Overlay controls for mobile if needed, or simple footer */}
       <div className="absolute bottom-4 w-full text-center pointer-events-none">
-        <p className="text-[10px] text-black/20 uppercase tracking-[0.3em]">V60 • React • Three.js</p>
+        <p className="text-[10px] text-black/20 uppercase tracking-[0.3em]">Ascension Offline • React • Three.js</p>
       </div>
     </div>
   );

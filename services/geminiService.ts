@@ -1,5 +1,5 @@
-// Static Reflection Service (Previously powered by Gemini)
-// Providing atmospheric, philosophical feedback without external dependencies.
+// Offline Reflection Service
+// Providing atmospheric, philosophical feedback using a curated library of wisdom.
 
 const REFLECTIONS = [
   "The path reveals itself only to those who walk it.",
@@ -24,15 +24,18 @@ const REFLECTIONS = [
   "Stillness moves mountains.",
   "The architecture of the mind mirrors the architecture of the world.",
   "Walk without feet, fly without wings, think without mind.",
-  "The spiral is a circle that learned to grow."
+  "The spiral is a circle that learned to grow.",
+  "When the path ends, look up.",
+  "Connections are invisible until you make them.",
+  "Silence speaks what words cannot.",
+  "You are the mover and the moved.",
+  "Structure is an illusion of the observer."
 ];
 
 export const generateReflection = async (levelId: number, theme: string): Promise<string> => {
-  // Simulate network delay for atmospheric effect (the "consulting the stars" moment)
+  // Simulate atmospheric delay
   await new Promise(resolve => setTimeout(resolve, 1500));
   
-  // Deterministic "randomness" based on levelId to ensure variety but consistency per playthrough, 
-  // or pure random for variety. Let's go with pure random for the "oracle" feel.
   const randomIndex = Math.floor(Math.random() * REFLECTIONS.length);
   
   return REFLECTIONS[randomIndex];
